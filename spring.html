@@ -8,105 +8,72 @@
   <style>
     img {
      width: 120px;
-     height: 100px;
     }
 
     body {
-      font-family: 'Noto Sans Myanmar', sans-serif;
-      font-weight: 300;
-      font-size: 12px;
-      text-align: center;
-      padding: 20px;
-    }
-    #slot-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .slot {
-        width: 150px;
-        height: 100px;
-        border: 2px dashed #ccc;
-        background-color: #f9f9f9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 10px;
-        position: relative;
-    }
-
-    .slot img {
-      max-width: 100%;
-      max-height: 100%;
-    }
-
-    .slot.drag-hover {
-        border-color: #4caf50; /* Highlight the slot being hovered */
-        background-color: #e8f5e9; /* Slightly green background for feedback */
-    }
-
-    .draggable {
-        touch-action: none; /* Prevent scrolling while dragging */
-        cursor: grab;
-        transition: transform 0.2s;
-    }
-
-.draggable:active {
-  transform: scale(1.1); /* Slightly enlarge while dragging */
+  font-family: 'Noto Sans Myanmar', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  text-align: center;
+  padding: 10px; /* Reduce padding for smaller screens */
 }
 
-    .buttons {
-      margin: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      margin: 5px;
-    }
-    #randomize-button {
-      background-color: #4caf50;
-      color: white;
-    }
-    #randomize-button:hover {
-      background-color: #45a049;
-    }
-    #clear-button {
-      background-color: #f44336;
-      color: white;
-    }
-    #clear-button:hover {
-      background-color: #d32f2f;
-    }
-    #undo-button {
-      background-color: #ffa500;
-      color: white;
-    }
-    #undo-button:hover {
-      background-color: #ff8c00;
-    }
-   /* Logo styling */
-   #logo-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 100;
-    }
+#slot-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
 
-    #logo {
-      width: 100px;
-      height: auto;
-      opacity: 0.8; /* Slightly transparent */
-      transition: opacity 0.3s ease;
-    }
+.slot {
+  width: 30%; /* Use percentages for scaling */
+  max-width: 150px; /* Cap the size for larger screens */
+  height: 80px;
+  border: 2px dashed #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  position: relative;
+}
 
-    #logo:hover {
-      opacity: 1; /* Full opacity on hover */
-    }
+.slot img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.draggable {
+  width: 80px; /* Adjust image size */
+  height: 60px;
+  cursor: grab;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 14px; /* Slightly smaller for better fit */
+}
+
+#logo {
+  width: 80px; /* Reduce size for mobile */
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .slot {
+    width: 45%; /* Adjust for smaller screens */
+  }
+
+  .draggable {
+    width: 60px; /* Adjust image size */
+    height: 50px;
+  }
+
+  button {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
+
 
   </style>
 </head>
@@ -226,92 +193,92 @@
         alert('No actions to undo!');
       }
     });
+    document.querySelectorAll('.draggable').forEach((img) => {
+  // Add touchstart event listener for mobile dragging
+  img.addEventListener('touchstart', handleTouchStart);
+});
 
-    let draggedElement = null; // Tracks the currently dragged element
+function handleTouchStart(e) {
+  const touch = e.touches[0];
+  const img = e.target;
+  img.style.position = 'absolute';
+  img.style.zIndex = 1000;
 
-// Enable drag-and-drop for an image
-function enableDragAndDrop(img) {
-  // Desktop drag events
-  img.addEventListener('dragstart', (e) => {
-    draggedElement = e.target;
-    e.dataTransfer.setData('text/plain', e.target.src);
-  });
-
-  // Mobile touch events
-  img.addEventListener('touchstart', (e) => {
-    draggedElement = e.target;
-    const touch = e.touches[0];
-    draggedElement.style.position = 'absolute';
-    draggedElement.style.zIndex = 1000;
-    draggedElement.style.left = `${touch.pageX - draggedElement.clientWidth / 2}px`;
-    draggedElement.style.top = `${touch.pageY - draggedElement.clientHeight / 2}px`;
-  });
-
-  img.addEventListener('touchmove', (e) => {
-    e.preventDefault(); // Prevent scrolling during touch interactions
-    const touch = e.touches[0];
-    draggedElement.style.left = `${touch.pageX - draggedElement.clientWidth / 2}px`;
-    draggedElement.style.top = `${touch.pageY - draggedElement.clientHeight / 2}px`;
-  });
-
-  img.addEventListener('touchend', (e) => {
-    const touch = e.changedTouches[0];
-    const elementUnderTouch = document.elementFromPoint(touch.pageX, touch.pageY);
-
-    if (elementUnderTouch && elementUnderTouch.classList.contains('slot')) {
-      dropIntoSlot(elementUnderTouch, draggedElement);
-    }
-
-    resetDraggedElement(draggedElement);
-    draggedElement = null;
-  });
-}
-
-// Drop image into a specific slot
-function dropIntoSlot(slot, element) {
-  if (slot.innerHTML.trim() === '') {
-    const img = document.createElement('img');
-    img.src = element.src || element; // Handle touch and drag cases
-    slot.innerHTML = ''; // Clear slot content
-    slot.appendChild(img); // Append the image
+  function moveAt(pageX, pageY) {
+    img.style.left = pageX - img.offsetWidth / 2 + 'px';
+    img.style.top = pageY - img.offsetHeight / 2 + 'px';
   }
-}
 
-// Reset dragged element's inline styles
-function resetDraggedElement(element) {
-  if (element) {
-    element.style.position = '';
-    element.style.zIndex = '';
-    element.style.left = '';
-    element.style.top = '';
+  moveAt(touch.pageX, touch.pageY);
+
+  function onTouchMove(event) {
+    const moveTouch = event.touches[0];
+    moveAt(moveTouch.pageX, moveTouch.pageY);
   }
+
+  document.addEventListener('touchmove', onTouchMove);
+
+  img.addEventListener('touchend', () => {
+    document.removeEventListener('touchmove', onTouchMove);
+    img.style.position = ''; // Reset positioning after drop
+  });
 }
 
-// Initialize slots
-const slots = Array.from(document.querySelectorAll('.slot'));
-slots.forEach((slot) => {
-  // Desktop dragover and drop events
-  slot.addEventListener('dragover', (e) => e.preventDefault());
-  slot.addEventListener('drop', (e) => {
-    e.preventDefault();
-    const src = e.dataTransfer.getData('text/plain');
-    if (src) {
-      dropIntoSlot(slot, { src });
+// Update drop handling for slots to support touch
+document.querySelectorAll('.slot').forEach((slot) => {
+  slot.addEventListener('touchend', (e) => {
+    const draggingImg = document.querySelector('.draggable[style*="z-index: 1000"]');
+    if (draggingImg) {
+      slot.innerHTML = ''; // Clear slot
+      slot.appendChild(draggingImg.cloneNode(true)); // Add dropped image
+      draggingImg.style.position = ''; // Reset dragging image
+      draggingImg.style.zIndex = ''; 
     }
   });
 });
-
-// Initialize drag-and-drop for all images
-images.forEach((image) => {
-  const img = document.createElement('img');
-  img.src = `${assetsFolder}${image}`;
-  img.alt = image;
-  img.classList.add('draggable');
-  img.setAttribute('draggable', true); // For desktop
-  enableDragAndDrop(img);
-  imageContainer.appendChild(img);
+document.querySelectorAll('.draggable').forEach((img) => {
+  // Add touchstart event listener for mobile dragging
+  img.addEventListener('touchstart', handleTouchStart);
 });
 
+function handleTouchStart(e) {
+  const touch = e.touches[0];
+  const img = e.target;
+  img.style.position = 'absolute';
+  img.style.zIndex = 1000;
+
+  function moveAt(pageX, pageY) {
+    img.style.left = pageX - img.offsetWidth / 2 + 'px';
+    img.style.top = pageY - img.offsetHeight / 2 + 'px';
+  }
+
+  moveAt(touch.pageX, touch.pageY);
+
+  function onTouchMove(event) {
+    const moveTouch = event.touches[0];
+    moveAt(moveTouch.pageX, moveTouch.pageY);
+  }
+
+  document.addEventListener('touchmove', onTouchMove);
+
+  img.addEventListener('touchend', () => {
+    document.removeEventListener('touchmove', onTouchMove);
+    img.style.position = ''; // Reset positioning after drop
+  });
+}
+
+// Update drop handling for slots to support touch
+document.querySelectorAll('.slot').forEach((slot) => {
+  slot.addEventListener('touchend', (e) => {
+    const draggingImg = document.querySelector('.draggable[style*="z-index: 1000"]');
+    if (draggingImg) {
+      slot.innerHTML = ''; // Clear slot
+      slot.appendChild(draggingImg.cloneNode(true)); // Add dropped image
+      draggingImg.style.position = ''; // Reset dragging image
+      draggingImg.style.zIndex = ''; 
+    }
+  });
+});
 
   </script>
 </body>
