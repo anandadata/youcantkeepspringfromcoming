@@ -42,7 +42,14 @@
       width: 100px;
       height: 80px;
       cursor: grab;
+      touch-action: none; /* Prevents scrolling during touch interactions */
+      transition: transform 0.2s;
     }
+
+    .draggable:active {
+        transform: scale(1.1); /* Slightly enlarge the image while dragging */
+    }
+    
     .buttons {
       margin: 20px;
     }
@@ -212,6 +219,67 @@
         alert('No actions to undo!');
       }
     });
+
+    let draggedElement = null; // To store the element being dragged
+
+// Handle drag and drop for both desktop and mobile
+function enableDragAndDrop(img) {
+  img.addEventListener('dragstart', (e) => {
+    draggedElement = e.target;
+    e.dataTransfer.setData('text/plain', e.target.src); // For desktop
+  });
+
+  // Touch events for mobile
+  img.addEventListener('touchstart', (e) => {
+    draggedElement = e.target;
+    const touch = e.touches[0];
+    draggedElement.style.position = 'absolute';
+    draggedElement.style.zIndex = 1000;
+    draggedElement.style.left = `${touch.pageX - draggedElement.clientWidth / 2}px`;
+    draggedElement.style.top = `${touch.pageY - draggedElement.clientHeight / 2}px`;
+  });
+
+  img.addEventListener('touchmove', (e) => {
+    e.preventDefault(); // Prevent scrolling while dragging
+    const touch = e.touches[0];
+    draggedElement.style.left = `${touch.pageX - draggedElement.clientWidth / 2}px`;
+    draggedElement.style.top = `${touch.pageY - draggedElement.clientHeight / 2}px`;
+  });
+
+  img.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    const elementUnderTouch = document.elementFromPoint(touch.pageX, touch.pageY);
+    if (elementUnderTouch && elementUnderTouch.classList.contains('slot')) {
+      // Drop the image into the slot
+      elementUnderTouch.innerHTML = '';
+      elementUnderTouch.appendChild(draggedElement.cloneNode(true));
+    }
+    resetDraggedElement(draggedElement); // Reset styles
+    draggedElement = null;
+  });
+}
+
+// Reset the dragged element styles
+function resetDraggedElement(element) {
+  if (element) {
+    element.style.position = '';
+    element.style.zIndex = '';
+    element.style.left = '';
+    element.style.top = '';
+  }
+}
+
+// Initialize drag-and-drop for all images
+images.forEach((image) => {
+  const img = document.createElement('img');
+  img.src = `${assetsFolder}${image}`;
+  img.alt = image;
+  img.classList.add('draggable');
+  img.setAttribute('draggable', true);
+  enableDragAndDrop(img);
+  imageContainer.appendChild(img);
+});
+
   </script>
 </body>
 </html>
