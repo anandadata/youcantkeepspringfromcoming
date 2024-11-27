@@ -11,69 +11,88 @@
     }
 
     body {
-  font-family: 'Noto Sans Myanmar', sans-serif;
-  font-weight: 300;
-  font-size: 12px;
-  text-align: center;
-  padding: 10px; /* Reduce padding for smaller screens */
-}
+      font-family: 'Noto Sans Myanmar', sans-serif;
+      font-weight: 300;
+      font-size: 12px;
+      text-align: center;
+      padding: 20px;
+    }
+    #slot-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
 
-#slot-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-}
+    .slot {
+      width: 150px;
+      height: 80px;
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f9f9f9;
+      position: relative;
+    }
+    .slot img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .draggable {
+      width: 100px;
+      height: 80px;
+      cursor: grab;
+    }
+    .buttons {
+      margin: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      margin: 5px;
+    }
+    #randomize-button {
+      background-color: #4caf50;
+      color: white;
+    }
+    #randomize-button:hover {
+      background-color: #45a049;
+    }
+    #clear-button {
+      background-color: #f44336;
+      color: white;
+    }
+    #clear-button:hover {
+      background-color: #d32f2f;
+    }
+    #undo-button {
+      background-color: #ffa500;
+      color: white;
+    }
+    #undo-button:hover {
+      background-color: #ff8c00;
+    }
+   /* Logo styling */
+   #logo-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 100;
+    }
 
-.slot {
-  width: 30%; /* Use percentages for scaling */
-  max-width: 150px; /* Cap the size for larger screens */
-  height: 80px;
-  border: 2px dashed #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9f9f9;
-  position: relative;
-}
+    #logo {
+      width: 100px;
+      height: auto;
+      opacity: 0.8; /* Slightly transparent */
+      transition: opacity 0.3s ease;
+    }
 
-.slot img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.draggable {
-  width: 80px; /* Adjust image size */
-  height: 60px;
-  cursor: grab;
-}
-
-button {
-  padding: 10px 15px;
-  font-size: 14px; /* Slightly smaller for better fit */
-}
-
-#logo {
-  width: 80px; /* Reduce size for mobile */
-  height: auto;
-}
-
-@media (max-width: 768px) {
-  .slot {
-    width: 45%; /* Adjust for smaller screens */
-  }
-
-  .draggable {
-    width: 60px; /* Adjust image size */
-    height: 50px;
-  }
-
-  button {
-    font-size: 12px;
-    padding: 8px 10px;
-  }
-}
-
+    #logo:hover {
+      opacity: 1; /* Full opacity on hover */
+    }
 
   </style>
 </head>
@@ -193,93 +212,6 @@ button {
         alert('No actions to undo!');
       }
     });
-    document.querySelectorAll('.draggable').forEach((img) => {
-  // Add touchstart event listener for mobile dragging
-  img.addEventListener('touchstart', handleTouchStart);
-});
-
-function handleTouchStart(e) {
-  const touch = e.touches[0];
-  const img = e.target;
-  img.style.position = 'absolute';
-  img.style.zIndex = 1000;
-
-  function moveAt(pageX, pageY) {
-    img.style.left = pageX - img.offsetWidth / 2 + 'px';
-    img.style.top = pageY - img.offsetHeight / 2 + 'px';
-  }
-
-  moveAt(touch.pageX, touch.pageY);
-
-  function onTouchMove(event) {
-    const moveTouch = event.touches[0];
-    moveAt(moveTouch.pageX, moveTouch.pageY);
-  }
-
-  document.addEventListener('touchmove', onTouchMove);
-
-  img.addEventListener('touchend', () => {
-    document.removeEventListener('touchmove', onTouchMove);
-    img.style.position = ''; // Reset positioning after drop
-  });
-}
-
-// Update drop handling for slots to support touch
-document.querySelectorAll('.slot').forEach((slot) => {
-  slot.addEventListener('touchend', (e) => {
-    const draggingImg = document.querySelector('.draggable[style*="z-index: 1000"]');
-    if (draggingImg) {
-      slot.innerHTML = ''; // Clear slot
-      slot.appendChild(draggingImg.cloneNode(true)); // Add dropped image
-      draggingImg.style.position = ''; // Reset dragging image
-      draggingImg.style.zIndex = ''; 
-    }
-  });
-});
-document.querySelectorAll('.draggable').forEach((img) => {
-  // Add touchstart event listener for mobile dragging
-  img.addEventListener('touchstart', handleTouchStart);
-});
-
-function handleTouchStart(e) {
-  const touch = e.touches[0];
-  const img = e.target;
-  img.style.position = 'absolute';
-  img.style.zIndex = 1000;
-
-  function moveAt(pageX, pageY) {
-    img.style.left = pageX - img.offsetWidth / 2 + 'px';
-    img.style.top = pageY - img.offsetHeight / 2 + 'px';
-  }
-
-  moveAt(touch.pageX, touch.pageY);
-
-  function onTouchMove(event) {
-    const moveTouch = event.touches[0];
-    moveAt(moveTouch.pageX, moveTouch.pageY);
-  }
-
-  document.addEventListener('touchmove', onTouchMove);
-
-  img.addEventListener('touchend', () => {
-    document.removeEventListener('touchmove', onTouchMove);
-    img.style.position = ''; // Reset positioning after drop
-  });
-}
-
-// Update drop handling for slots to support touch
-document.querySelectorAll('.slot').forEach((slot) => {
-  slot.addEventListener('touchend', (e) => {
-    const draggingImg = document.querySelector('.draggable[style*="z-index: 1000"]');
-    if (draggingImg) {
-      slot.innerHTML = ''; // Clear slot
-      slot.appendChild(draggingImg.cloneNode(true)); // Add dropped image
-      draggingImg.style.position = ''; // Reset dragging image
-      draggingImg.style.zIndex = ''; 
-    }
-  });
-});
-
   </script>
 </body>
 </html>
